@@ -1,5 +1,6 @@
 package com.zaratedev.myapp;
 
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,56 +18,57 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        texto = (TextView) findViewById(R.id.texto);
-        boton = (Button) findViewById(R.id.boton);
+        texto = findViewById(R.id.texto);
+        boton = findViewById(R.id.boton);
 
         boton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        final String text = "New text";
-                        // First method
-                        /*texto.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                texto.setText(text);
-                            }
-                        });*/
-
-                        // second method
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                texto.setText(text);
-                            }
-                        });
-
-
-                    }
-                }).start();
-
-                /*Hilo hilo = new Hilo();
-                hilo.start();*/
+                new MyAsycTask().execute(100);
             }
         });
     }
 
-    /*public class Hilo extends Thread {
-        public void run(){
-            for (int i = 1; i <= 10; i++) {
-                //texto.setText(String.valueOf(i));
 
+    public class MyAsycTask extends AsyncTask<Integer, Integer, String>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String doInBackground(Integer... integers) {
+            int max = integers[0];
+
+            for (int i = 1; i < max; i++) {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                Log.e("DEBUG", String.valueOf(i));
+                publishProgress(i);
             }
+            return "End";
         }
-    }*/
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+
+            int contador = values[0];
+            String text = "Contador" + contador;
+
+            texto.setText(text);
+            texto.setTextSize(contador);
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+            texto.append("\n" + s);
+        }
+    }
 }
